@@ -1,0 +1,81 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Calculator</title>
+    <script
+        src="https://code.jquery.com/jquery-3.6.0.js"
+        integrity="sha256-H+K7U5CnXl1h5ywQfKtSj8PCmoN9aaq30gDh27Xc0jk="
+        crossorigin="anonymous"></script>
+</head>
+<body>
+    <form id="form_calc" action="#">
+        <select name="type" id="oil_price">
+            <option value="45">95</option>
+            <option value="42">92</option>
+            <option value="50">ДТ</option>
+        </select>
+        <input id="oil_liters" type="number" name="count" placeholder="объем">
+        <input id="oil_summ" type="number" name="sum" placeholder="сумма">
+    </form>
+
+    <script>
+        let state = {
+            price: 45, // Тип бензина, само название не важно, важна именно цена
+            liters: 0,
+            summ: 0,
+        };
+
+        const $oilLiters = $('#oil_liters');
+        const $oilPrice = $('#oil_price');
+        const $oilSumm = $('#oil_summ');
+
+        function render(actualState) {
+            $oilLiters.val(Math.ceil(actualState.liters));
+            $oilPrice.val(actualState.price);
+            $oilSumm.val(Math.ceil(actualState.summ));
+        }
+
+        function calculate(actualState, event) {
+            switch (event.changedProp) {
+                case 'liters':
+                    return {
+                        price: actualState.price,
+                        liters: event.value,
+                        summ: actualState.price * event.value
+                    }; 
+                case 'price':
+                    return {
+                        price: event.value,
+                        liters: actualState.liters,
+                        summ: event.value * actualState.liters
+                    }; 
+                case 'summ':
+                    return {
+                        price: actualState.price,
+                        liters: event.value / actualState.price,
+                        summ: event.value
+                    }; 
+                default:
+                    return actualState;
+            }
+        }
+
+        function createListener(propName) {
+            return function(event) {
+                state = calculate(state, {
+                    changedProp: propName,
+                    value: parseInt($(event.target).val()) || 0,
+                });
+                render(state);
+            }
+        }
+
+        $oilLiters.on('input', createListener('liters'));
+        $oilPrice.on('change', createListener('price'));
+        $oilSumm.on('input', createListener('summ'));
+    </script>
+</body>
+</html>
